@@ -252,6 +252,12 @@ def lower_case(words):
     """
     return [w.lower() for w in words]
 
+def capitalize_case(words):
+    """
+    Set first letter of each words to UPPER case aka Capitalize.
+    """
+    return [w.capitalize() for w in words]
+
 
 def random_case(words, testing=False):
     """
@@ -275,7 +281,8 @@ CASE_METHODS = {"alternating": alternating_case,
                 "lower": lower_case,
                 "random": random_case,
                 "first": first_upper_case,
-                }
+                "capitalize":capitalize_case}
+
 
 
 def set_case(words, method="lower", testing=False):
@@ -328,45 +335,46 @@ def generate_xkcdpassword(wordlist,
     # useful if driving the logic from other code
     if not interactive:
         return gen_passwd()
-
+        
     # else, interactive session
-    # define input validators
-    def n_words_validator(answer):
-        """
-        Validate custom number of words input
-        """
-
-        if isinstance(answer, str) and len(answer) == 0:
-            return numwords
-        try:
-            number = int(answer)
-            if number < 1:
-                raise ValueError
-            return number
-        except ValueError:
-            sys.stderr.write("Please enter a positive integer\n")
-            sys.exit(1)
-
-    def accepted_validator(answer):
-        return answer.lower().strip() in ["y", "yes"]
-
-    if not acrostic:
-        n_words_prompt = ("Enter number of words (default {0}):"
-                          " ".format(numwords))
-
-        numwords = try_input(n_words_prompt, n_words_validator)
     else:
-        numwords = len(acrostic)
+        # define input validators
+        def accepted_validator(answer):
+            return answer.lower().strip() in ["y", "yes"]
 
-    # generate passwords until the user accepts
-    accepted = False
+        # generate passwords until the user accepts
+        accepted = False
+        
+        while not accepted:
+            passwd = gen_passwd()
+            print("Generated: " + passwd)
+            accepted = try_input("Accept? [yN] ", accepted_validator)
+            print('accepted', accepted)
+        return passwd
+        
 
-    while not accepted:
-        passwd = gen_passwd()
-        print("Generated: " + passwd)
-        accepted = try_input("Accept? [yN] ", accepted_validator)
+def initialize_interactive_run(options):
+    def n_words_validator(answer):
+            """
+            Validate custom number of words input
+            """
+            
+            if isinstance(answer, str) and len(answer) == 0:
+                return options.numwords
+            try:
+                number = int(answer)
+                if number < 1:
+                    raise ValueError
+                return number
+            except ValueError:
+                sys.stderr.write("Please enter a positive integer\n")
+                sys.exit(1)
 
-    return passwd
+    if not options.acrostic:
+        n_words_prompt = ("Enter number of words (default {0}):\n".format(options.numwords))
+        options.numwords = try_input(n_words_prompt, n_words_validator)
+    else:
+        options.numwords = len(options.acrostic)
 
 
 def emit_passwords(wordlist, options):
@@ -396,6 +404,7 @@ class XkcdPassArgumentParser(argparse.ArgumentParser):
 
     def _add_arguments(self):
         """ Add the arguments needed for this program. """
+        exclusive_group = self.add_mutually_exclusive_group()
         self.add_argument(
             "-w", "--wordfile",
             dest="wordfile", default=None, metavar="WORDFILE",
@@ -404,7 +413,7 @@ class XkcdPassArgumentParser(argparse.ArgumentParser):
                 " of valid words from which to generate passphrases."
                 " Provided wordfiles: eff-long (default), eff-short,"
                 " eff-special, legacy, spa-mich (Spanish), fin-kotus (Finnish)"
-                " ita-wiki (Italian), ger-anlx (German)"))
+                " ita-wiki (Italian), ger-anlx (German), nor-nb (Norwegian)"))
         self.add_argument(
             "--min",
             dest="min_length", type=int, default=5, metavar="MIN_LENGTH",
@@ -413,10 +422,14 @@ class XkcdPassArgumentParser(argparse.ArgumentParser):
             "--max",
             dest="max_length", type=int, default=9, metavar="MAX_LENGTH",
             help="Generate passphrases containing at most MAX_LENGTH words.")
-        self.add_argument(
+        exclusive_group.add_argument(
             "-n", "--numwords",
             dest="numwords", type=int, default=6, metavar="NUM_WORDS",
             help="Generate passphrases containing exactly NUM_WORDS words.")
+        exclusive_group.add_argument(
+            "-a", "--acrostic",
+            dest="acrostic", default=False,
+            help="Generate passphrases with an acrostic matching ACROSTIC.")
         self.add_argument(
             "-i", "--interactive",
             action="store_true", dest="interactive", default=False,
@@ -433,10 +446,6 @@ class XkcdPassArgumentParser(argparse.ArgumentParser):
             "-V", "--verbose",
             action="store_true", dest="verbose", default=False,
             help="Report various metrics for given options.")
-        self.add_argument(
-            "-a", "--acrostic",
-            dest="acrostic", default=False,
-            help="Generate passphrases with an acrostic matching ACROSTIC.")
         self.add_argument(
             "-c", "--count",
             dest="count", type=int, default=1, metavar="COUNT",
@@ -489,6 +498,9 @@ def main(argv=None):
             max_length=options.max_length,
             valid_chars=options.valid_chars)
 
+        if options.interactive:
+            initialize_interactive_run(options)
+        
         if options.verbose:
             verbose_reports(my_wordlist, options)
 
