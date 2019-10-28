@@ -38,7 +38,7 @@ Contributions welcome and gratefully appreciated!
 Requirements
 ============
 
-Python 2 (version 2.7 or later), or Python 3 (version 3.2 or later). Running module unit tests on Python 2 requires ``mock`` to be installed.
+Python 2 (version 2.7 or later), or Python 3 (version 3.4 or later). Running module unit tests on Python 2 requires ``mock`` to be installed.
 
 
 
@@ -82,7 +82,8 @@ A concise overview of the available ``xkcdpass`` options can be accessed via::
                                     valid words from which to generate passphrases.
                                     Provided wordfiles: eff-long (default), eff-short,
                                     eff-special, legacy, spa-mich (Spanish), fin-kotus (Finnish)
-                                    ita-wiki (Italian), ger-anlx (German)
+                                    ita-wiki (Italian), ger-anlx (German), nor-nb (Norwegian),
+                                    fr-freelang (French), pt-ipublicis / pt-l33t-ipublicis (Portuguese)
         --min=MIN_LENGTH
                                     Minimum length of words to make password
         --max=MAX_LENGTH
@@ -106,7 +107,7 @@ A concise overview of the available ``xkcdpass`` options can be accessed via::
         -C CASE, --case CASE  
                                     Choose the method for setting the case of each word in
                                     the passphrase. Choices: ['alternating', 'upper',
-                                    'lower', 'random', 'first'] (default: 'lower').
+                                    'lower', 'random', 'capitalize'] (default: 'lower').
         --allow-weak-rng     
                                      Allow fallback to weak RNG if the system does not
                                     support cryptographically secure RNG. Only use this if
@@ -134,6 +135,9 @@ Additional languages
 - Finnish: a modified version of the Institute for the Languages of Finland `XML word list <http://kaino.kotus.fi/sanat/nykysuomi/>`_. Profanities and expressions containing spaces were removed using regex. The resulting list contains ~93k words. The list is published under GNU LGPL, EUPL 1.1 and CC-BY 3.0 licenses.
 - Italian: generated from dumps of the Italian-language Wikipedia, which is released under the Creative Commons Attribution-Share-Alike 3.0 licence.
 - German: based on `this GPL v3 list <https://github.com/dassencio/langcmp/blob/master/wordlists/top10000de.txt>`_. Single and double character words have been removed.
+- Norwegian: a modified version of `Norsk Ordbank in Norwegian Bokmål 2005 <https://www.nb.no/sprakbanken/show?serial=oai%3Anb.no%3Asbr-5&lang=en>`_, 2018-06-28 update, which is released under the `CC-BY 4.0 license <https://creativecommons.org/licenses/by/4.0/>`_. Regex has been used to alter the list for cleanup and removal of words with impractical characters. The resulting list contains ~137k words.
+- French: Cleaned version of `this list <https://packetstormsecurity.com/files/download/32007/french.gz>`_. Public domain.
+- Portuguese: Converted variant of the LibreOffice / Firefox poturguese dictionary (from `this link <https://raw.githubusercontent.com/titoBouzout/Dictionaries/master/Portuguese%20(European).dic>`_. GPL and BSD licenced.
 
 Additional language word lists are always welcome!
 
@@ -183,6 +187,10 @@ or setting the appropriate environment variable::
 
 Changelog
 =========
+- **1.17.3** Updated license and supported versions
+- **1.17.2** Compatibility fix for 2.x/3.x 
+- **1.17.1** Fix issue with README and unicode encoding
+- **1.17.0** Add French, Norwegian, and Portuguese dictionaries. Bugfixes and improvements to tests (WIP).
 - **1.16.5** Adds title case option for `--case`
 - **1.16.4** Improve unit tests, fixes broken test on python 2
 - **1.16.3** Correct links for German worldist, updated docs to include the list
@@ -197,9 +205,6 @@ Changelog
 - **1.14.0** Added Finnish and Italian language support (thanks to Jussi Tiira and Lorenzo Mureu respectively)
 - **1.13.0** Added Spanish language wordfile (thanks to Javier Meija)
 - **1.12.0** Handle maximum word length < minimum case by setting max = min
-- **1.11.1** Fix bug in entropy calc
-- **1.11.0** Rewrite verbose report to take acrostics etc into account
-- **1.10.0** Switch to EFF wordlist as default (note: decrease in entropy of default length passwords to 77 bits, still at EFF recommendations)
 
 
 License
